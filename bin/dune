@@ -1,5 +1,11 @@
 (executable
- (public_name qash2)
- (name main)
- (libraries qash2)
+  (public_name qash2)
+  (name main)
+  (libraries
+    cmdliner
+    fmt
+    logs
+    logs.fmt
+    qash2
+  )
 )

@@ -9,7 +9,9 @@ homepage: "https://github.com/ushitora-anqou/qash2"
 doc: "https://github.com/ushitora-anqou/qash2"
 bug-reports: "https://github.com/ushitora-anqou/qash2/issues"
 depends: [
+  "cmdliner"
   "dune" {>= "3.16"}
+  "logs"
   "ocaml" {>= "5.2"}
   "ocaml-lsp-server" {dev}
   "ocamlformat" {dev & = "0.26.2"}
