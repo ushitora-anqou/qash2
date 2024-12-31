@@ -1,0 +1,34 @@
+opam-version: "2.0"
+synopsis: "A programming language for double-entry accounting"
+description: "A programming language for double-entry accounting"
+maintainer: ["Ushitora Anqou"]
+authors: ["Ushitora Anqou"]
+license: "Apache-2.0"
+tags: ["accounting"]
+homepage: "https://github.com/ushitora-anqou/qash2"
+doc: "https://github.com/ushitora-anqou/qash2"
+bug-reports: "https://github.com/ushitora-anqou/qash2/issues"
+depends: [
+  "dune" {>= "3.16"}
+  "ocaml" {>= "5.2"}
+  "ocaml-lsp-server" {dev}
+  "ocamlformat" {dev & = "0.26.2"}
+  "odoc" {with-doc}
+  "ounit2" {with-test}
+  "utop" {dev}
+]
+build: [
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]
+dev-repo: "git+https://github.com/ushitora-anqou/qash2.git"
