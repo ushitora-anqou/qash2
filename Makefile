@@ -1,7 +1,6 @@
 .PHONY: build
 build:
 	nix fmt
-	direnv reload
 	dune build
 
 .PHONY: test

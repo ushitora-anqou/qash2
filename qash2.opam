@@ -17,6 +17,7 @@ depends: [
   "ocamlformat" {dev & = "0.26.2"}
   "odoc" {with-doc}
   "ounit2" {with-test}
+  "ppx_deriving"
   "utop" {dev}
 ]
 build: [

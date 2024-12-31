@@ -3,4 +3,5 @@
 
 (library
   (name qash2)
+  (preprocess (pps ppx_deriving.make))
 )
