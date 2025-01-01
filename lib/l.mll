@@ -23,7 +23,9 @@ rule main = parse
   line_comment lexbuf;
   main lexbuf
 }
-| (digit digit digit digit as year) '-' (digit digit as month) '-' (digit digit as day) {
+| ('2' '0' digit digit as year) '-'
+  (('0' digit | '1' ['0'-'2']) as month) '-'
+  ((['0'-'2'] digit | '3' ['0' '1']) as day) {
   P.DATE (int_of_string year, int_of_string month, int_of_string day)
 }
 | digit [ '0'-'9' ',' '.' ]* as s {
@@ -57,7 +59,8 @@ rule main = parse
 | '#' [ ^ ' ' '\t' '\n' ]+ as s {
   P.TAG s
 }
-| [ ^ '!' ' ' '\t' '\n' '0'-'9' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ] [ ^ ' ' '\t' '\n' ]+ {
+| [ ^ '!' ' ' '\t' '\n' '0'-'9' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ]
+  [ ^ ' ' '\t' '\n' ]+ {
   match Lexing.lexeme lexbuf with
   | "import" -> P.K_IMPORT
   | "mod" -> P.K_MOD

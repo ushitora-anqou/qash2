@@ -72,6 +72,47 @@ let test_decimal _ =
              assert (to_string d = expected_string);
              ())
 
+let test_lexer _ =
+  let test input expected =
+    try
+      let lex = Lexing.from_string input in
+      expected |> List.iter (fun e -> assert (L.main lex = e))
+    with _ -> assert false
+  in
+  test "2025-01-01" [ P.DATE (2025, 1, 1) ];
+  test "2020-10-30" [ P.DATE (2020, 10, 30) ];
+  test "2024-12-31" [ P.DATE (2024, 12, 31) ];
+  test "2000-01-01" [ P.DATE (2000, 1, 1) ];
+  test "1999-12-31"
+    P.
+      [
+        DECIMAL (Decimal.make ~v:1999 ~scale:0);
+        MINUS;
+        DECIMAL (Decimal.make ~v:12 ~scale:0);
+        MINUS;
+        DECIMAL (Decimal.make ~v:31 ~scale:0);
+      ];
+  test "2100-01-01"
+    P.
+      [
+        DECIMAL (Decimal.make ~v:2100 ~scale:0);
+        MINUS;
+        DECIMAL (Decimal.make ~v:1 ~scale:0);
+        MINUS;
+        DECIMAL (Decimal.make ~v:1 ~scale:0);
+      ];
+  test "2000 -01-01"
+    [
+      DECIMAL (Decimal.make ~v:2000 ~scale:0);
+      MINUS;
+      DECIMAL (Decimal.make ~v:1 ~scale:0);
+      MINUS;
+      DECIMAL (Decimal.make ~v:1 ~scale:0);
+    ];
+
+  ()
+
 let () =
   let open OUnit2 in
-  run_test_tt_main ("qash2" >::: [ "decimal" >:: test_decimal ])
+  run_test_tt_main
+    ("qash2" >::: [ "decimal" >:: test_decimal; "lexer" >:: test_lexer ])
