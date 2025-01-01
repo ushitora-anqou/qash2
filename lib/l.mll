@@ -6,6 +6,9 @@ exception Error of string
 let indent = '\n' ' '*
 let whitespace = [ ' ' '\t' ]
 let digit = [ '0'-'9' ]
+let name =
+  [ ^ '!' ' ' '\t' '\n' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' '0'-'9' ]
+  [ ^ '!' ' ' '\t' '\n' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ]+
 
 rule main = parse
 | indent as s {
@@ -56,11 +59,16 @@ rule main = parse
 | ',' {
   P.COMMA
 }
-| '#' [ ^ ' ' '\t' '\n' ]+ as s {
+| '(' {
+  P.LPAREN
+}
+| ')' {
+  P.RPAREN
+}
+| '#' (name as s) {
   P.TAG s
 }
-| [ ^ '!' ' ' '\t' '\n' '0'-'9' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ]
-  [ ^ ' ' '\t' '\n' ]+ {
+| name {
   match Lexing.lexeme lexbuf with
   | "import" -> P.K_IMPORT
   | "mod" -> P.K_MOD

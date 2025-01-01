@@ -72,12 +72,37 @@ let test_decimal _ =
              assert (to_string d = expected_string);
              ())
 
+let string_of_token = function
+  | P.BR -> "BR"
+  | EOF -> "EOF"
+  | COMMA -> "COMMA"
+  | INDENT -> "INDENT"
+  | DEDENT -> "DEDENT"
+  | PLUS -> "PLUS"
+  | MINUS -> "MINUS"
+  | PIPE -> "PIPE"
+  | STAR -> "STAR"
+  | SLASH -> "SLASH"
+  | K_MOD -> "K_MOD"
+  | K_IMPORT -> "K_IMPORT"
+  | K_PROC -> "K_PROC"
+  | LPAREN -> "LPAREN"
+  | RPAREN -> "RPAREN"
+  | SPACE _ -> "SPACE"
+  | DECIMAL _ -> "DECIMAL"
+  | DATE _ -> "DATE"
+  | ID s -> "ID(" ^ s ^ ")"
+  | STRING _ -> "STRING"
+  | TAG _ -> "TAG"
+[@@warning "-32"]
+
 let test_lexer _ =
   let test input expected =
-    try
-      let lex = Lexing.from_string input in
-      expected |> List.iter (fun e -> assert (L.main lex = e))
-    with _ -> assert false
+    let lex = Lexing.from_string input in
+    expected
+    |> List.iter (fun e ->
+           let token = L.main lex in
+           assert (token = e))
   in
   test "2025-01-01" [ P.DATE (2025, 1, 1) ];
   test "2020-10-30" [ P.DATE (2020, 10, 30) ];
@@ -109,7 +134,9 @@ let test_lexer _ =
       MINUS;
       DECIMAL (Decimal.make ~v:1 ~scale:0);
     ];
-
+  test "あいう()" [ ID "あいう"; LPAREN; RPAREN ];
+  test "あいう(え,お)" [ ID "あいう"; LPAREN; ID "え"; COMMA; ID "お"; RPAREN ];
+  test "#あい" [ TAG "あい" ];
   ()
 
 let () =
