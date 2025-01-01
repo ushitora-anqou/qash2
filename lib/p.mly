@@ -1,18 +1,20 @@
 %{
 %}
 
+%token APP
 %token BR
 %token COMMA
 %token DEDENT
 %token EOF
 %token INDENT
+%token K_FUN
 %token K_IMPORT
 %token K_MOD
 %token K_PROC
 %token LPAREN
 %token MINUS
-%token PIPE
 %token PLUS
+%token RARROW
 %token RPAREN
 %token SLASH
 %token STAR
@@ -24,10 +26,12 @@
 %token <string>      STRING
 %token <string>      TAG
 
-%left PIPE
+(* cf. https://ptival.github.io/2017/05/16/parser-generators-and-function-application/ *)
+%nonassoc RARROW
 %left PLUS MINUS
 %left STAR SLASH
-%left LPAREN
+%nonassoc DECIMAL ID LPAREN
+%nonassoc APP
 
 %start program
 %type <Syntax.program> program
@@ -71,12 +75,6 @@ Posting :
 }
 
 Expr :
-| x=ID {
-  Syntax.Var x
-}
-| d=DECIMAL {
-  Syntax.Decimal d
-}
 | MINUS e=Expr {
   Syntax.Negate e
 }
@@ -92,11 +90,22 @@ Expr :
 | e1=Expr SLASH e2=Expr {
   Syntax.Divide (e1, e2)
 }
-| PIPE params=separated_list(COMMA, ID) PIPE e=Expr {
+| K_FUN params=nonempty_list(ID) RARROW e=Expr {
   Syntax.Function (params, e)
 }
-| e=Expr LPAREN args=separated_list(COMMA, Expr) RPAREN {
-  Syntax.Call (e, args)
+| e=AtomicExpr {
+  e
+}
+
+AtomicExpr :
+| d=DECIMAL {
+  Syntax.Decimal d
+}
+| x=ID {
+  Syntax.Var x
+}
+| e1=AtomicExpr e2=AtomicExpr %prec APP {
+  Syntax.Apply (e1, e2)
 }
 | LPAREN e=Expr RPAREN {
   e

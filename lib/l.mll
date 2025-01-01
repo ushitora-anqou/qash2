@@ -60,9 +60,6 @@ rule main = parse
 | '/' {
   P.SLASH
 }
-| '|' {
-  P.PIPE
-}
 | ',' {
   P.COMMA
 }
@@ -72,11 +69,15 @@ rule main = parse
 | ')' {
   P.RPAREN
 }
+| "->" {
+  P.RARROW
+}
 | '#' (name as s) {
   P.TAG s
 }
 | name {
   match Lexing.lexeme lexbuf with
+  | "fun" -> P.K_FUN
   | "import" -> P.K_IMPORT
   | "mod" -> P.K_MOD
   | "proc" -> P.K_PROC

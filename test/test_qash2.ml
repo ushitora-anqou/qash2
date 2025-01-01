@@ -138,16 +138,15 @@ let test_lexer _ =
   test "あいう()" [ ID "あいう"; LPAREN; RPAREN ];
   test "あいう(え,お)" [ ID "あいう"; LPAREN; ID "え"; COMMA; ID "お"; RPAREN ];
   test "#あい" [ TAG "あい" ];
-  test "|a| a" [ PIPE; ID "a"; PIPE; ID "a" ];
-  test "|a, b| a + b"
-    [ PIPE; ID "a"; COMMA; ID "b"; PIPE; ID "a"; PLUS; ID "b" ];
-  test "|a, b| a(1, 2) + b"
+  test "fun a -> a" [ K_FUN; ID "a"; RARROW; ID "a" ];
+  test "fun a b -> a + b"
+    [ K_FUN; ID "a"; ID "b"; RARROW; ID "a"; PLUS; ID "b" ];
+  test "fun a b -> a(1, 2) + b"
     [
-      PIPE;
+      K_FUN;
       ID "a";
-      COMMA;
       ID "b";
-      PIPE;
+      RARROW;
       ID "a";
       LPAREN;
       DECIMAL (Decimal.make ~neg:false ~pos_v:1 ~scale:0);
@@ -171,18 +170,22 @@ let test_parser _ =
   test_expr "1+2" Syntax.(Add (one, two));
   test_expr "1+2*3" Syntax.(Add (one, Multiply (two, three)));
   test_expr "(1+2)*3" Syntax.(Multiply (Add (one, two), three));
-  test_expr "a(1, 2, 3)" Syntax.(Call (Var "a", [ one; two; three ]));
-  test_expr "a(1,2, 3)"
+  test_expr "a 1 2 3" Syntax.(Apply (Apply (Apply (Var "a", one), two), three));
+  test_expr "a 1,2 3"
     Syntax.(
-      Call
-        (Var "a", [ Decimal (Decimal.of_string "12" |> Result.get_ok); three ]));
-  test_expr "|a, b| a + b"
+      Apply
+        ( Apply (Var "a", Decimal (Decimal.of_string "12" |> Result.get_ok)),
+          three ));
+  test_expr "fun a b -> a + b"
     Syntax.(Function ([ "a"; "b" ], Add (Var "a", Var "b")));
-  test_expr "(|a, b| a) + b"
+  test_expr "(fun a b -> a) + b"
     Syntax.(Add (Function ([ "a"; "b" ], Var "a"), Var "b"));
-  test_expr "|a, b| a(1, 2) + b"
+  test_expr "fun a b -> a 1 2 + b"
     Syntax.(
-      Function ([ "a"; "b" ], Add (Call (Var "a", [ one; two ]), Var "b")));
+      Function ([ "a"; "b" ], Add (Apply (Apply (Var "a", one), two), Var "b")));
+  test_expr "a b c" Syntax.(Apply (Apply (Var "a", Var "b"), Var "c"));
+  test_expr "a b (c d)"
+    Syntax.(Apply (Apply (Var "a", Var "b"), Apply (Var "c", Var "d")));
 
   let test_program input expected =
     let got = Parser.parse_string input |> Result.get_ok in

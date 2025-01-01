@@ -6,7 +6,7 @@ type expr =
   | Multiply of (expr * expr)
   | Divide of (expr * expr)
   | Function of (string list * expr)
-  | Call of (expr * expr list)
+  | Apply of (expr * expr)
   | Var of string
 
 type date = { year : int; month : int; day : int } [@@deriving make]
