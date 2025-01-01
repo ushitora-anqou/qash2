@@ -1,38 +1,108 @@
 %{
 %}
 
-%token BR EOF COMMA INDENT DEDENT PLUS MINUS PIPE STAR SLASH K_MOD K_IMPORT K_PROC LPAREN RPAREN
+%token BR
+%token COMMA
+%token DEDENT
+%token EOF
+%token INDENT
+%token K_IMPORT
+%token K_MOD
+%token K_PROC
+%token LPAREN
+%token MINUS
+%token PIPE
+%token PLUS
+%token RPAREN
+%token SLASH
+%token STAR
 
-%token <int> SPACE
-%token <Decimal.t> DECIMAL
-%token <(int * int * int)> DATE
-%token <string> ID
-%token <string> STRING
-%token <string> TAG
+%token <Syntax.date> DATE
+%token <Decimal.t>   DECIMAL
+%token <string>      ID
+%token <int>         SPACE
+%token <string>      STRING
+%token <string>      TAG
 
-%start toplevel
-%type <unit> toplevel
+%left PIPE
+%left PLUS MINUS
+%left STAR SLASH
+%left LPAREN
+
+%start program
+%type <Syntax.program> program
+
+%start expr
+%type <Syntax.expr> expr
 %%
 
-toplevel :
-| EOF {
-  ()
+expr :
+| e=Expr EOF {
+  e
 }
 
-(*
-Toplevel :
-| BR* x=Directive xs=Toplevel {
+program :
+| decls=Decls {
+  Syntax.{ decls }
+}
+
+Decls :
+| BR* x=Decl xs=Decls {
   x :: xs
 }
 | BR* EOF {
   []
 }
 
-Date :
-| year=DECIMAL MINUS month=DECIMAL MINUS day=DECIMAL {
-  Model.{ year; month; day }
+Decl :
+| x=Tx {
+  x
 }
 
+Tx :
+| STAR date=DATE desc=STRING tags=list(TAG)
+  postings=option(INDENT ps=separated_list(BR, Posting) DEDENT { ps }) {
+  Syntax.Tx { date; desc; tags; postings }
+}
+
+Posting :
+| account=ID amount=option(Expr) {
+  Syntax.make_posting ~account ?amount ()
+}
+
+Expr :
+| x=ID {
+  Syntax.Var x
+}
+| d=DECIMAL {
+  Syntax.Decimal d
+}
+| MINUS e=Expr {
+  Syntax.Negate e
+}
+| e1=Expr PLUS e2=Expr {
+  Syntax.Add (e1, e2)
+}
+| e1=Expr MINUS e2=Expr {
+  Syntax.Subtract (e1, e2)
+}
+| e1=Expr STAR e2=Expr {
+  Syntax.Multiply (e1, e2)
+}
+| e1=Expr SLASH e2=Expr {
+  Syntax.Divide (e1, e2)
+}
+| PIPE params=separated_list(COMMA, ID) PIPE e=Expr {
+  Syntax.Function (params, e)
+}
+| e=Expr LPAREN args=separated_list(COMMA, Expr) RPAREN {
+  Syntax.Call (e, args)
+}
+| LPAREN e=Expr RPAREN {
+  e
+}
+
+(*
 Directive :
 (* !open-account *)
 | K_OPEN_ACCOUNT kind=ID account=Account currency=ID tags=list(TAG) {

@@ -8,7 +8,7 @@ let whitespace = [ ' ' '\t' ]
 let digit = [ '0'-'9' ]
 let name =
   [ ^ '!' ' ' '\t' '\n' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' '0'-'9' ]
-  [ ^ '!' ' ' '\t' '\n' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ]+
+  [ ^ '!' ' ' '\t' '\n' '+' '-' '*' '/' '|' ',' '#' '"' '(' ')' ]*
 
 rule main = parse
 | indent as s {
@@ -29,9 +29,16 @@ rule main = parse
 | ('2' '0' digit digit as year) '-'
   (('0' digit | '1' ['0'-'2']) as month) '-'
   ((['0'-'2'] digit | '3' ['0' '1']) as day) {
-  P.DATE (int_of_string year, int_of_string month, int_of_string day)
+  P.DATE (
+    Syntax.make_date
+      ~year:(int_of_string year)
+      ~month:(int_of_string month)
+      ~day:(int_of_string day)
+  )
 }
-| digit [ '0'-'9' ',' '.' ]* as s {
+
+(* accept decimals e.g., 42, 123,456, and 1.23. *)
+| ([ '0'-'9' '.' ]+ | [ '0'-'9' '.' ]+ [ '0'-'9' '.' ',' ]+ [ '0'-'9' '.' ]+) as s {
   P.DECIMAL (
     match Decimal.of_string s with
     | Ok d -> d
