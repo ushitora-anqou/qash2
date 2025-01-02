@@ -3,7 +3,6 @@ open Util
 let string_of_token = function
   | P.APP -> "APP"
   | BR -> "BR"
-  | COMMA -> "COMMA"
   | DATE _ -> "DATE"
   | DECIMAL _ -> "DECIMAL"
   | DEDENT -> "DEDENT"

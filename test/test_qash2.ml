@@ -140,22 +140,18 @@ let test_lexer _ =
       DECIMAL (Decimal.make ~neg:false ~pos_v:1 ~scale:0);
     ];
   test "あいう()" [ ID "あいう"; LPAREN; RPAREN ];
-  test "あいう(え,お)" [ ID "あいう"; LPAREN; ID "え"; COMMA; ID "お"; RPAREN ];
   test "#あい" [ TAG "あい" ];
   test "fun a -> a" [ FUN; ID "a"; RARROW; ID "a" ];
   test "fun a b -> a + b" [ FUN; ID "a"; ID "b"; RARROW; ID "a"; PLUS; ID "b" ];
-  test "fun a b -> a(1, 2) + b"
+  test "fun a b -> a 1 2 + b"
     [
       FUN;
       ID "a";
       ID "b";
       RARROW;
       ID "a";
-      LPAREN;
       DECIMAL (Decimal.make ~neg:false ~pos_v:1 ~scale:0);
-      COMMA;
       DECIMAL (Decimal.make ~neg:false ~pos_v:2 ~scale:0);
-      RPAREN;
       PLUS;
       ID "b";
     ];

@@ -60,9 +60,6 @@ rule main = parse
 | '/' {
   P.SLASH
 }
-| ',' {
-  P.COMMA
-}
 | '(' {
   P.LPAREN
 }

@@ -3,7 +3,6 @@
 
 %token APP
 %token BR
-%token COMMA
 %token DEDENT
 %token EOF
 %token FUN
