@@ -19,6 +19,8 @@ type transaction = {
   postings : posting list option;
 }
 
+type stmt = Expr of expr
+
 type decl =
   | Transaction of transaction
   | Import of {
@@ -26,5 +28,6 @@ type decl =
       path : string;
       overlays : transaction list;
     }
+  | Proc of { name : string; params : string list; stmts : stmt list }
 
 type program = { decls : decl list }

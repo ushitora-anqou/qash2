@@ -245,6 +245,9 @@ import "foo"
 import "mf" "foo"
   * 2025-01-01 "はろー"
     わーるど 1+2
+
+proc はろー わーるど
+  はろー わーるど
 |}
     Syntax.
       [
@@ -253,6 +256,12 @@ import "mf" "foo"
         Import { format = Some "mf"; path = "foo"; overlays = [] };
         Import { format = None; path = "foo"; overlays = [ test_tx ] };
         Import { format = Some "mf"; path = "foo"; overlays = [ test_tx ] };
+        Proc
+          {
+            name = "はろー";
+            params = [ "わーるど" ];
+            stmts = [ Expr (Apply (Var "はろー", Var "わーるど")) ];
+          };
       ];
   ()
 

@@ -27,7 +27,7 @@
 %token <string>      TAG
 
 (* cf. https://ptival.github.io/2017/05/16/parser-generators-and-function-application/ *)
-%nonassoc RARROW
+%nonassoc RARROW EXPR_STMT
 %left PLUS MINUS
 %left STAR SLASH
 %nonassoc DECIMAL ID LPAREN
@@ -66,6 +66,22 @@ Decl :
   overlays=ioption(INDENT overlays=Transactions DEDENT { overlays }) {
   Syntax.Import { format; path; overlays = Option.value ~default:[] overlays }
 }
+| PROC name=ID params=nonempty_list(ID) INDENT stmts=Stmts DEDENT {
+  Syntax.Proc { name; params; stmts }
+}
+
+Stmts :
+| BR* x=Stmt xs=Stmts {
+  x :: xs
+}
+| BR* x=Stmt {
+  [x]
+}
+
+Stmt :
+| e=AtomicExpr %prec EXPR_STMT {
+  Syntax.Expr e
+}
 
 Transaction :
 | STAR date=DATE desc=STRING tags=list(TAG)
@@ -80,7 +96,6 @@ Transactions :
 | BR* x=Transaction {
   [x]
 }
-
 
 Posting :
 | account=ID amount=option(Expr) {
