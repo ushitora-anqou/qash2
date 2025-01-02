@@ -246,6 +246,8 @@ import "mf" "foo"
 
 proc はろー わーるど
   はろー わーるど
+
+  はろー わーるど
 |}
     Syntax.
       [
@@ -258,7 +260,11 @@ proc はろー わーるど
           {
             name = "はろー";
             params = [ "わーるど" ];
-            stmts = [ Expr (Apply (Var "はろー", Var "わーるど")) ];
+            stmts =
+              [
+                Expr (Apply (Var "はろー", Var "わーるど"));
+                Expr (Apply (Var "はろー", Var "わーるど"));
+              ];
           };
       ];
   ()
