@@ -138,12 +138,11 @@ let test_lexer _ =
   test "あいう()" [ ID "あいう"; LPAREN; RPAREN ];
   test "あいう(え,お)" [ ID "あいう"; LPAREN; ID "え"; COMMA; ID "お"; RPAREN ];
   test "#あい" [ TAG "あい" ];
-  test "fun a -> a" [ K_FUN; ID "a"; RARROW; ID "a" ];
-  test "fun a b -> a + b"
-    [ K_FUN; ID "a"; ID "b"; RARROW; ID "a"; PLUS; ID "b" ];
+  test "fun a -> a" [ FUN; ID "a"; RARROW; ID "a" ];
+  test "fun a b -> a + b" [ FUN; ID "a"; ID "b"; RARROW; ID "a"; PLUS; ID "b" ];
   test "fun a b -> a(1, 2) + b"
     [
-      K_FUN;
+      FUN;
       ID "a";
       ID "b";
       RARROW;

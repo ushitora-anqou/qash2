@@ -77,10 +77,10 @@ rule main = parse
 }
 | name {
   match Lexing.lexeme lexbuf with
-  | "fun" -> P.K_FUN
-  | "import" -> P.K_IMPORT
-  | "mod" -> P.K_MOD
-  | "proc" -> P.K_PROC
+  | "fun" -> P.FUN
+  | "import" -> P.IMPORT
+  | "mod" -> P.MOD
+  | "proc" -> P.PROC
   | id -> P.ID id
 }
 | eof {

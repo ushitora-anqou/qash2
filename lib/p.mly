@@ -6,14 +6,14 @@
 %token COMMA
 %token DEDENT
 %token EOF
+%token FUN
+%token IMPORT
 %token INDENT
-%token K_FUN
-%token K_IMPORT
-%token K_MOD
-%token K_PROC
 %token LPAREN
 %token MINUS
+%token MOD
 %token PLUS
+%token PROC
 %token RARROW
 %token RPAREN
 %token SLASH
@@ -90,7 +90,7 @@ Expr :
 | e1=Expr SLASH e2=Expr {
   Syntax.Divide (e1, e2)
 }
-| K_FUN params=nonempty_list(ID) RARROW e=Expr {
+| FUN params=nonempty_list(ID) RARROW e=Expr {
   Syntax.Function (params, e)
 }
 | e=AtomicExpr {
