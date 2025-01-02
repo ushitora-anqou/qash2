@@ -5,6 +5,7 @@ type expr =
   | Subtract of (expr * expr)
   | Multiply of (expr * expr)
   | Divide of (expr * expr)
+  | Modulo of (expr * expr)
   | Function of (string list * expr)
   | Apply of (expr * expr)
   | Var of string

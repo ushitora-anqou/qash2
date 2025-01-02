@@ -28,7 +28,7 @@
 (* cf. https://ptival.github.io/2017/05/16/parser-generators-and-function-application/ *)
 %nonassoc RARROW EXPR_STMT
 %left PLUS MINUS
-%left STAR SLASH
+%left STAR SLASH MOD
 %nonassoc DECIMAL ID LPAREN
 %nonassoc APP
 
@@ -116,6 +116,9 @@ Expr :
 }
 | e1=Expr SLASH e2=Expr {
   Syntax.Divide (e1, e2)
+}
+| e1=Expr MOD e2=Expr {
+  Syntax.Modulo (e1, e2)
 }
 | FUN params=nonempty_list(ID) RARROW e=Expr {
   Syntax.Function (params, e)

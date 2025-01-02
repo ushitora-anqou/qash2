@@ -191,6 +191,8 @@ let test_parser _ =
   test_expr "1+2" Syntax.(Add (one, two));
   test_expr "1+2*3" Syntax.(Add (one, Multiply (two, three)));
   test_expr "(1+2)*3" Syntax.(Multiply (Add (one, two), three));
+  test_expr "(1+2)/3" Syntax.(Divide (Add (one, two), three));
+  test_expr "(1+2) mod 3" Syntax.(Modulo (Add (one, two), three));
   test_expr "a 1 2 3" Syntax.(Apply (Apply (Apply (Var "a", one), two), three));
   test_expr "a 1,2 3"
     Syntax.(
