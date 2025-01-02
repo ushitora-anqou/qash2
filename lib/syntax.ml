@@ -12,12 +12,19 @@ type expr =
 type date = { year : int; month : int; day : int } [@@deriving make]
 type posting = { account : string; amount : expr option } [@@deriving make]
 
+type transaction = {
+  date : date;
+  desc : string;
+  tags : string list;
+  postings : posting list option;
+}
+
 type decl =
-  | Tx of {
-      date : date;
-      desc : string;
-      tags : string list;
-      postings : posting list option;
+  | Transaction of transaction
+  | Import of {
+      format : string option;
+      path : string;
+      overlays : transaction list;
     }
 
 type program = { decls : decl list }

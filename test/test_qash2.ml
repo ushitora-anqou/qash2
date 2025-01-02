@@ -100,10 +100,14 @@ let test_decimal _ =
 let test_lexer _ =
   let test input expected =
     let lex = Lexing.from_string input in
+    Parser.Lexer.clear ();
     expected
     |> List.iter (fun e ->
-           let token = L.main lex in
-           assert (token = e))
+           let token = Parser.Lexer.main 2 lex in
+           (*Printf.eprintf ">>> %s %s\n" (Parser.string_of_token e)
+             (Parser.string_of_token token);*)
+           assert (token = e));
+    Parser.Lexer.clear ()
   in
   test "2025-01-01" [ P.DATE (Syntax.make_date ~year:2025 ~month:1 ~day:1) ];
   test "2020-10-30" [ P.DATE (Syntax.make_date ~year:2020 ~month:10 ~day:30) ];
@@ -155,6 +159,28 @@ let test_lexer _ =
       PLUS;
       ID "b";
     ];
+  test
+    {|
+import "foo"
+  * 2025-01-01 "はろー"
+    わーるど 1+2
+|}
+    [
+      BR;
+      IMPORT;
+      STRING "foo";
+      INDENT;
+      STAR;
+      DATE { year = 2025; month = 1; day = 1 };
+      STRING "はろー";
+      INDENT;
+      ID "わーるど";
+      DECIMAL (Decimal.make ~neg:false ~pos_v:1 ~scale:0);
+      PLUS;
+      DECIMAL (Decimal.make ~neg:false ~pos_v:2 ~scale:0);
+      DEDENT;
+      DEDENT;
+    ];
   ()
 
 let test_parser _ =
@@ -187,22 +213,46 @@ let test_parser _ =
     Syntax.(Apply (Apply (Var "a", Var "b"), Apply (Var "c", Var "d")));
 
   let test_program input expected =
-    let got = Parser.parse_string input |> Result.get_ok in
+    let got =
+      match Parser.parse_string input with
+      | Ok x -> x
+      | Error e -> failwith (R.Error.to_string e)
+    in
     assert (got.decls = expected)
   in
-  test_program {|
+  let test_tx =
+    Syntax.
+      {
+        date = { year = 2025; month = 1; day = 1 };
+        desc = "はろー";
+        tags = [];
+        postings = Some [ { account = "わーるど"; amount = Some (Add (one, two)) } ];
+      }
+  in
+  test_program
+    {|
 * 2025-01-01 "はろー"
-  わーるど 1+2|}
+  わーるど 1+2
+
+import "foo"
+
+import "mf" "foo"
+
+import "foo"
+  * 2025-01-01 "はろー"
+    わーるど 1+2
+
+import "mf" "foo"
+  * 2025-01-01 "はろー"
+    わーるど 1+2
+|}
     Syntax.
       [
-        Tx
-          {
-            date = { year = 2025; month = 1; day = 1 };
-            desc = "はろー";
-            tags = [];
-            postings =
-              Some [ { account = "わーるど"; amount = Some (Add (one, two)) } ];
-          };
+        Transaction test_tx;
+        Import { format = None; path = "foo"; overlays = [] };
+        Import { format = Some "mf"; path = "foo"; overlays = [] };
+        Import { format = None; path = "foo"; overlays = [ test_tx ] };
+        Import { format = Some "mf"; path = "foo"; overlays = [ test_tx ] };
       ];
   ()
 

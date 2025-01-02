@@ -59,15 +59,28 @@ Decls :
 }
 
 Decl :
-| x=Tx {
-  x
+| x=Transaction {
+  Syntax.Transaction x
+}
+| IMPORT format=ioption(STRING) path=STRING
+  overlays=ioption(INDENT overlays=Transactions DEDENT { overlays }) {
+  Syntax.Import { format; path; overlays = Option.value ~default:[] overlays }
 }
 
-Tx :
+Transaction :
 | STAR date=DATE desc=STRING tags=list(TAG)
   postings=option(INDENT ps=separated_list(BR, Posting) DEDENT { ps }) {
-  Syntax.Tx { date; desc; tags; postings }
+  Syntax.{ date; desc; tags; postings }
 }
+
+Transactions :
+| BR* x=Transaction xs=Transactions {
+  x :: xs
+}
+| BR* x=Transaction {
+  [x]
+}
+
 
 Posting :
 | account=ID amount=option(Expr) {
