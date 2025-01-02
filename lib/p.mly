@@ -68,6 +68,9 @@ Decl :
 | PROC name=ID params=nonempty_list(ID) INDENT stmts=Stmts DEDENT {
   Syntax.Proc { name; params; stmts }
 }
+| s=Stmt {
+  Syntax.Stmt s
+}
 
 Stmts :
 | BR* x=Stmt xs=ioption(Stmts) {

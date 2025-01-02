@@ -30,5 +30,6 @@ type decl =
       overlays : transaction list;
     }
   | Proc of { name : string; params : string list; stmts : stmt list }
+  | Stmt of stmt
 
 type program = { decls : decl list }
