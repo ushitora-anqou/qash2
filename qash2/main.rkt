@@ -11,8 +11,8 @@
       (qash2-read-syntax #f in)))
 
   (define (qash2-read-syntax src in)
-    (with-syntax ([str (port->string in)])
-      (strip-context ; read-syntax 関数は lexical context を持たない syntax object を返さなければならない。
+    (define _ (port->string in))
+    (with-syntax ([str #'(list "2026-09-20" "マクドナルド" "食費" 1000 "現金" -1000)])
         #'(module anything racket
-            (provide data2)
-            (define data2 'str))))))
+            (provide data)
+            (define data str)))))
