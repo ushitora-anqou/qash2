@@ -19,6 +19,6 @@
     [#\/ (token-DIVISION)]
     [#\^ (token-POWER)]
     [#\n (token-NEG)]
-    [(:: (:+ numeric) (:* (:: #\. (:+ numeric)))) (token-NUMBER (string->number lexeme))]))
+    [(:: (:+ numeric) (:? (:: #\. (:+ numeric)))) (token-NUMBER (string->number lexeme))]))
 
 (provide value-tokens op-tokens next-token)

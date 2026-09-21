@@ -1,6 +1,6 @@
 #lang racket
 
-(require syntax/strip-context)
+(require "parser.rkt")
 
 (provide (rename-out [qash2-read read]
                      [qash2-read-syntax read-syntax]))
@@ -9,10 +9,13 @@
   (syntax->datum
     (qash2-read-syntax #f in)))
 
-(define (qash2-read-syntax src in)
-  (define _ (port->string in))
-  (strip-context
-    (with-syntax ([str #'(list "2026-09-20" "マクドナルド" "食費" 1000 "現金" -1000)])
-      #'(module anything racket
-          (provide data)
-          (define data str)))))
+(define (qash2-read-syntax path port)
+  (datum->syntax
+    #f
+    `(module rpcalc-mod racket
+       ,(parse port))))
+
+; cf. https://docs.racket-lang.org/guide/Module_Syntax.html?version=9.3#%28part._main-and-test%29
+(module+ test
+  (require rackunit)
+  (check-eq? (last (qash2-read (open-input-string "2 3 7 + *"))) 20))
