@@ -11,7 +11,7 @@
 
 (define (qash2-read-syntax src in)
   (define _ (port->string in))
-  (stirp-context
+  (strip-context
     (with-syntax ([str #'(list "2026-09-20" "マクドナルド" "食費" 1000 "現金" -1000)])
       #'(module anything racket
           (provide data)
